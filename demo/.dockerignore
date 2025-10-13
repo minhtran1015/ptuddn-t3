@@ -1,0 +1,34 @@
+# Ignore build directories
+build/
+target/
+.gradle/
+
+# Ignore IDE files
+.idea/
+.vscode/
+*.iml
+*.ipr
+*.iws
+
+# Ignore OS files
+.DS_Store
+Thumbs.db
+
+# Ignore log files
+*.log
+app.log
+
+# Ignore temporary files
+*.tmp
+*.temp
+
+# Ignore git
+.git/
+.gitignore
+
+# Ignore Docker files (to avoid copying Dockerfile into itself)
+Dockerfile
+.dockerignore
+
+# Ignore test results
+TEST-*.xml
