@@ -1,0 +1,27 @@
+# This file tells Kubernetes how to run your Spring Boot application.
+# It defines a Deployment that will create and manage a Pod running your container.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  # The name for your deployment resource
+  name: demo-spring-boot-deployment
+spec:
+  # Run a single instance of your application
+  replicas: 1
+  selector:
+    matchLabels:
+      app: demo-spring-boot
+  template:
+    metadata:
+      labels:
+        # A label to identify the Pods created by this deployment
+        app: demo-spring-boot
+    spec:
+      containers:
+      - name: demo-app-container
+        # IMPORTANT: Replace YOUR_DOCKERHUB_USERNAME with your actual Docker Hub username.
+        # This is the image Kubernetes will pull and run.
+        image: minhtran1015/demo-spring-boot:latest
+        ports:
+        # The port your Spring Boot application listens on inside the container
+        - containerPort: 8081
