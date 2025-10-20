@@ -19,9 +19,8 @@ spec:
     spec:
       containers:
       - name: demo-app-container
-        # IMPORTANT: Replace YOUR_DOCKERHUB_USERNAME with your actual Docker Hub username.
-        # This is the image Kubernetes will pull and run.
-        image: minhtran1015/demo-spring-boot:latest
+        # This is now the 100% correct image name from your screenshot
+        image: d1ff1c1le/demo-spring-boot:latest
         ports:
         # The port your Spring Boot application listens on inside the container
         - containerPort: 8081
