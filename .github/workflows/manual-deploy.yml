@@ -1,0 +1,67 @@
+name: Manual Deploy to Environment
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Target environment'
+        required: true
+        default: 'staging'
+        type: choice
+        options:
+          - staging
+          - production
+      image_tag:
+        description: 'Docker image tag to deploy'
+        required: true
+        default: 'main-latest'
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: ${{ github.event.inputs.environment }}
+
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout ArgoCD repository
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ secrets.ARGOCD_REPO }}
+          token: ${{ secrets.ARGOCD_TOKEN }}
+
+      - name: Update image tag for ${{ github.event.inputs.environment }}
+        run: |
+          ENVIRONMENT="${{ github.event.inputs.environment }}"
+          IMAGE_TAG="${{ github.event.inputs.image_tag }}"
+          
+          if [ "$ENVIRONMENT" = "staging" ]; then
+            VALUES_FILE="demo-app-staging/values.yaml"
+          else
+            VALUES_FILE="demo-app/values.yaml"
+          fi
+          
+          sed -i "s/tag: .*/tag: ${IMAGE_TAG}/g" "$VALUES_FILE"
+          
+          cat "$VALUES_FILE" | grep -A2 "image:"
+
+      - name: Commit and push changes
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          
+          git add -A
+          git commit -m "Deploy image tag ${{ github.event.inputs.image_tag }} to ${{ github.event.inputs.environment }} - $(date +%Y-%m-%d\ %H:%M:%S)"
+          git push
+
+      - name: Notify deployment
+        uses: 8398a7/action-slack@v3
+        with:
+          status: ${{ job.status }}
+          text: |
+            Manual deployment to ${{ github.event.inputs.environment }}
+            Image Tag: ${{ github.event.inputs.image_tag }}
+            Status: ${{ job.status }}
+          webhook_url: ${{ secrets.SLACK_WEBHOOK }}
+        continue-on-error: true

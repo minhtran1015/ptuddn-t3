@@ -1,0 +1,102 @@
+name: CD - Deploy with ArgoCD
+
+on:
+  workflow_run:
+    workflows: ["CI - Build & Test"]
+    types:
+      - completed
+    branches:
+      - main
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
+jobs:
+  deploy:
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      packages: read
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Get Docker image tag
+        id: image-tag
+        run: |
+          IMAGE_TAG=$(git rev-parse --short HEAD)
+          echo "tag=${IMAGE_TAG}" >> $GITHUB_OUTPUT
+          echo "Docker image tag: ${IMAGE_TAG}"
+
+      - name: Checkout ArgoCD repository
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ secrets.ARGOCD_REPO }}
+          token: ${{ secrets.ARGOCD_TOKEN }}
+          path: argocd-repo
+
+      - name: Update Helm values
+        run: |
+          cd argocd-repo
+          
+          # Update image tag in values.yaml
+          sed -i "s/tag: .*/tag: ${{ steps.image-tag.outputs.tag }}/g" demo-app/values.yaml
+          
+          # Verify the change
+          grep "tag:" demo-app/values.yaml
+
+      - name: Commit and push changes
+        working-directory: argocd-repo
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          
+          if git diff --quiet; then
+            echo "No changes to commit"
+          else
+            git add demo-app/values.yaml
+            git commit -m "Update demo-app image tag to ${{ steps.image-tag.outputs.tag }} - $(date +%Y-%m-%d\ %H:%M:%S)"
+            git push
+          fi
+
+      - name: Wait for ArgoCD sync
+        run: |
+          echo "Waiting for ArgoCD to sync the application..."
+          sleep 10
+          echo "ArgoCD will automatically sync the application within 3 minutes"
+
+      - name: Notify deployment
+        uses: 8398a7/action-slack@v3
+        if: always()
+        with:
+          status: ${{ job.status }}
+          text: |
+            Deployment Status: ${{ job.status }}
+            Image Tag: ${{ steps.image-tag.outputs.tag }}
+            Repository: ${{ github.repository }}
+            Branch: ${{ github.ref }}
+          webhook_url: ${{ secrets.SLACK_WEBHOOK }}
+        continue-on-error: true
+
+  verify-deployment:
+    needs: deploy
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Check deployment status
+        run: |
+          echo "Deployment completed successfully"
+          echo "ArgoCD will now sync and deploy the application"
+
+      - name: Slack notification - Success
+        uses: 8398a7/action-slack@v3
+        if: success()
+        with:
+          status: success
+          text: 'Application deployed successfully to production'
+          webhook_url: ${{ secrets.SLACK_WEBHOOK }}
+        continue-on-error: true

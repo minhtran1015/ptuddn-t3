@@ -1,0 +1,17 @@
+apiVersion: v2
+name: demo-app
+description: A Helm chart for Demo App - Spring Boot REST API with JWT
+type: application
+version: 1.0.0
+appVersion: "1.0"
+keywords:
+  - spring-boot
+  - rest-api
+  - jwt
+  - docker
+home: https://github.com/minhtran1015/ptuddn-t3
+sources:
+  - https://github.com/minhtran1015/ptuddn-t3
+maintainers:
+  - name: Your Name
+    email: your-email@example.com

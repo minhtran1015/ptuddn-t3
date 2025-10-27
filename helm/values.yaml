@@ -1,0 +1,121 @@
+replicaCount: 3
+
+image:
+  repository: ghcr.io/minhtran1015/ptuddn-t3
+  pullPolicy: Always
+  tag: "main-latest"
+
+imagePullSecrets:
+  - name: registry-credentials
+
+nameOverride: ""
+fullnameOverride: ""
+
+serviceAccount:
+  create: true
+  annotations: {}
+  name: "demo-app"
+
+service:
+  type: ClusterIP
+  port: 80
+  targetPort: 8081
+
+ingress:
+  enabled: true
+  className: nginx
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/rate-limit: "100"
+  hosts:
+    - host: api.example.com
+      paths:
+        - path: /
+          pathType: Prefix
+  tls:
+    - secretName: demo-app-tls
+      hosts:
+        - api.example.com
+
+resources:
+  limits:
+    cpu: 500m
+    memory: 1Gi
+  requests:
+    cpu: 250m
+    memory: 512Mi
+
+autoscaling:
+  enabled: true
+  minReplicas: 3
+  maxReplicas: 10
+  targetCPUUtilizationPercentage: 70
+  targetMemoryUtilizationPercentage: 80
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity:
+  podAntiAffinity:
+    preferredDuringSchedulingIgnoredDuringExecution:
+      - weight: 100
+        podAffinityTerm:
+          labelSelector:
+            matchExpressions:
+              - key: app
+                operator: In
+                values:
+                  - demo-app
+          topologyKey: kubernetes.io/hostname
+
+env:
+  SPRING_PROFILES_ACTIVE: production
+  APP_JWT_EXPIRATION: "86400000"
+  LOGGING_LEVEL_COM_EXAMPLE_DEMO: INFO
+
+secrets:
+  APP_JWT_SECRET: "your-secret-key-change-in-production"
+  SPRING_DATASOURCE_USERNAME: demouser
+  SPRING_DATASOURCE_PASSWORD: demopassword
+
+database:
+  enabled: true
+  host: mysql
+  port: 3306
+  name: demoapp
+  driverClassName: com.mysql.cj.jdbc.Driver
+
+livenessProbe:
+  enabled: true
+  path: /actuator/health
+  initialDelaySeconds: 30
+  periodSeconds: 10
+  timeoutSeconds: 5
+  failureThreshold: 3
+
+readinessProbe:
+  enabled: true
+  path: /actuator/health/readiness
+  initialDelaySeconds: 20
+  periodSeconds: 5
+  timeoutSeconds: 3
+  failureThreshold: 2
+
+monitoring:
+  enabled: true
+  prometheus:
+    enabled: true
+    path: /actuator/prometheus
+    interval: 30s
+    scrapeTimeout: 10s
+
+securityContext:
+  allowPrivilegeEscalation: false
+  runAsNonRoot: true
+  runAsUser: 1000
+  readOnlyRootFilesystem: true
+  capabilities:
+    drop:
+      - ALL
