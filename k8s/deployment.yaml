@@ -31,7 +31,7 @@ spec:
       # Make it public at: https://github.com/users/minhtran1015/packages/container/ptuddn-t3/settings
       containers:
       - name: demo-app
-        image: ghcr.io/minhtran1015/ptuddn-t3:main-2288c8b
+        image: ghcr.io/minhtran1015/ptuddn-t3:main-7d57a0c
         imagePullPolicy: Always
         ports:
         - name: http
