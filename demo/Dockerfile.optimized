@@ -28,8 +28,8 @@ WORKDIR /app
 RUN addgroup --system spring && adduser --system spring --ingroup spring
 USER spring:spring
 
-# Copy the built JAR from the builder stage (exclude the plain JAR)
-COPY --from=builder /app/build/libs/*[!plain].jar app.jar
+# Copy the built JAR from the builder stage (only the executable JAR, not the plain one)
+COPY --from=builder /app/build/libs/*.jar app.jar
 
 # Expose the port that the application runs on
 EXPOSE 8081
