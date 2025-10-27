@@ -54,6 +54,14 @@ spec:
           limits:
             cpu: 500m
             memory: 1Gi
+        startupProbe:
+          httpGet:
+            path: /actuator/health
+            port: http
+          initialDelaySeconds: 0
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 30
         livenessProbe:
           httpGet:
             path: /actuator/health
