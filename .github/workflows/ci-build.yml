@@ -92,9 +92,10 @@ jobs:
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         uses: anchore/sbom-action@v0
         with:
-          path: demo/build/libs/*.jar
+          path: demo
           format: cyclonedx-json
           output-file: sbom.json
+        continue-on-error: true
 
       - name: Upload SBOM
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
