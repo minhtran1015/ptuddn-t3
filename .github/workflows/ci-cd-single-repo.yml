@@ -131,7 +131,7 @@ jobs:
           fi
 
       - name: Notify deployment
-        if: success() && secrets.SLACK_WEBHOOK != ''
+        if: success()
         uses: 8398a7/action-slack@v3
         with:
           status: success
@@ -142,9 +142,11 @@ jobs:
             Commit: ${{ github.sha }}
           webhook_url: ${{ secrets.SLACK_WEBHOOK }}
         continue-on-error: true
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
 
       - name: Notify failure
-        if: failure() && secrets.SLACK_WEBHOOK != ''
+        if: failure()
         uses: 8398a7/action-slack@v3
         with:
           status: failure
@@ -154,3 +156,5 @@ jobs:
             Commit: ${{ github.sha }}
           webhook_url: ${{ secrets.SLACK_WEBHOOK }}
         continue-on-error: true
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
