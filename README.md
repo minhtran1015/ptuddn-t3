@@ -1,3 +1,7 @@
-![Screenshot](Screenshot.png)
+# Setup Complete
 
-![Detail](Screenshot%202025-10-27%20at%2013.09.47.png)
+The setup is successfully completed as shown in the screenshots below:
+
+![Details1](Screenshot1.png)
+
+![Details2](Screenshot2.png)
