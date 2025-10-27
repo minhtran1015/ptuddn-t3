@@ -31,7 +31,7 @@ spec:
         - name: registry-credentials
       containers:
       - name: demo-app
-        image: ghcr.io/minhtran1015/ptuddn-t3:main-latest
+        image: ghcr.io/minhtran1015/ptuddn-t3:main-a8ac9aa
         imagePullPolicy: Always
         ports:
         - name: http
