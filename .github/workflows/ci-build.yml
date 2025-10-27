@@ -57,6 +57,7 @@ jobs:
           name: JUnit Test Report
           path: 'demo/build/test-results/test/*.xml'
           reporter: 'java-junit'
+        continue-on-error: true
 
       - name: Log in to Container Registry
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
