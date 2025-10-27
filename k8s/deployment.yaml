@@ -39,32 +39,7 @@ spec:
           protocol: TCP
         env:
         - name: SPRING_PROFILES_ACTIVE
-          value: production
-        - name: SPRING_APPLICATION_NAME
-          valueFrom:
-            configMapKeyRef:
-              name: demo-app-config
-              key: spring.application.name
-        - name: SERVER_PORT
-          valueFrom:
-            configMapKeyRef:
-              name: demo-app-config
-              key: server.port
-        - name: SPRING_DATASOURCE_URL
-          valueFrom:
-            configMapKeyRef:
-              name: demo-app-mysql-config
-              key: spring.datasource.url
-        - name: SPRING_DATASOURCE_USERNAME
-          valueFrom:
-            secretKeyRef:
-              name: demo-app-secrets
-              key: spring.datasource.username
-        - name: SPRING_DATASOURCE_PASSWORD
-          valueFrom:
-            secretKeyRef:
-              name: demo-app-secrets
-              key: spring.datasource.password
+          value: "default"
         - name: APP_JWT_SECRET
           valueFrom:
             secretKeyRef:
