@@ -14,6 +14,14 @@ The setup is successfully completed as shown in the screenshots below:
 - `images/`: Screenshots and images
 - `scripts/`: Build and deployment scripts
 
+## Documentation
+
+For detailed setup instructions, see the documentation files in the `docs/` folder:
+
+- `KUBERNETES_DEPLOYMENT_GUIDE.md`: Complete guide for deploying to Kubernetes and setting up monitoring
+- `CICD_COMPLETE_SETUP_GUIDE.md`: CI/CD pipeline setup instructions
+- `GITOPS_SETUP_STEP_BY_STEP.md`: GitOps workflow with ArgoCD
+
 ## Monitoring Setup
 
 The application is monitored using Prometheus and Grafana.
