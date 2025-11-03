@@ -1,0 +1,48 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: cpu-usage-alerts
+  namespace: monitoring
+  labels:
+    app: prometheus
+    prometheus: kube-prometheus
+    role: alert-rules
+spec:
+  groups:
+  - name: cpu.rules
+    rules:
+    - alert: HighPodCPUUsage
+      expr: (sum(rate(container_cpu_usage_seconds_total{pod!="", container!="POD", container!=""}[5m])) by (pod, namespace) / sum(container_spec_cpu_quota{pod!="", container!="POD", container!=""}/container_spec_cpu_period{pod!="", container!="POD", container!=""}) by (pod, namespace)) * 100 > 80
+      for: 1m
+      labels:
+        severity: critical
+      annotations:
+        summary: "Pod {{ $labels.pod }} in {{ $labels.namespace }} has high CPU usage"
+        description: "Pod {{ $labels.pod }} in namespace {{ $labels.namespace }} has been using more than 80% CPU for more than 1 minute. Current usage: {{ $value }}%"
+    
+    - alert: HighNodeCPUUsage
+      expr: 100 - (avg by(instance) (rate(node_cpu_seconds_total{mode="idle"}[5m])) * 100) > 80
+      for: 1m
+      labels:
+        severity: warning
+      annotations:
+        summary: "Node {{ $labels.instance }} has high CPU usage"
+        description: "Node {{ $labels.instance }} has been using more than 80% CPU for more than 1 minute. Current usage: {{ $value }}%"
+    
+    - alert: PodCrashLooping
+      expr: rate(kube_pod_container_status_restarts_total[15m]) > 0
+      for: 0m
+      labels:
+        severity: critical
+      annotations:
+        summary: "Pod {{ $labels.pod }} is crash looping"
+        description: "Pod {{ $labels.pod }} in namespace {{ $labels.namespace }} is restarting frequently."
+    
+    - alert: PodHighMemoryUsage
+      expr: (sum(container_memory_working_set_bytes{pod!="", container!="POD", container!=""}) by (pod, namespace) / sum(container_spec_memory_limit_bytes{pod!="", container!="POD", container!=""}) by (pod, namespace)) * 100 > 90
+      for: 2m
+      labels:
+        severity: warning
+      annotations:
+        summary: "Pod {{ $labels.pod }} in {{ $labels.namespace }} has high memory usage"
+        description: "Pod {{ $labels.pod }} in namespace {{ $labels.namespace }} has been using more than 90% memory for more than 2 minutes. Current usage: {{ $value }}%"
