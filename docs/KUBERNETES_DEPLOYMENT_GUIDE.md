@@ -170,13 +170,79 @@ kubectl port-forward -n monitoring svc/monitoring-kube-prometheus-prometheus 909
    - Select **Prometheus**
    - URL: `http://monitoring-kube-prometheus-prometheus:9090`
    - Click **"Save & Test"**
+   - You should see "Data source is working"
 
-3. **Import Dashboards**
+3. **Import Custom Dashboards**
+
+   **Option A: Import from JSON files**
    - Go to **Dashboards** → **Browse**
    - Click **"New"** → **"Import"**
-   - Import dashboard ID: `4701` (JVM Dashboard) or `3662` (Spring Boot Statistics)
+   - Click **"Upload JSON file"**
+   - Upload the dashboard JSON files from the `docs/` folder:
+     - `spring-boot-dashboard.json` - Application metrics
+     - `kubernetes-cluster-dashboard.json` - Cluster overview
    - Select the Prometheus data source
    - Click **"Import"**
+
+   **Option B: Import from Grafana.com**
+   - Go to **Dashboards** → **Browse**
+   - Click **"New"** → **"Import"**
+   - Enter dashboard ID and click **"Load"**:
+     - `4701` - JVM (Micrometer)
+     - `3662` - Spring Boot Statistics
+     - `315` - Kubernetes cluster monitoring
+   - Select the Prometheus data source
+   - Click **"Import"**
+
+4. **Create Custom Dashboard (Optional)**
+
+   If you want to create a custom dashboard:
+
+   - Go to **Dashboards** → **Browse**
+   - Click **"New"** → **"New Dashboard"**
+   - Click **"Add a new panel"**
+   - Select **Prometheus** as data source
+   - Add queries like:
+
+     ```promql
+     # Application health
+     up{job="demo-app"}
+
+     # HTTP request rate
+     rate(http_server_requests_seconds_count{job="demo-app"}[5m])
+
+     # JVM memory
+     jvm_memory_used_bytes{job="demo-app"}
+     ```
+
+   - Configure visualization and save the dashboard
+
+### 5. Verify Monitoring Setup
+
+1. **Check Prometheus Targets**
+   - Open <http://localhost:9090>
+   - Go to **Status** → **Targets**
+   - Verify that `demo-app` appears in the list with status "UP"
+
+2. **Test Application Metrics**
+   - Port-forward the application: `kubectl port-forward -n demo-app svc/demo-app 8080:80`
+   - Check metrics endpoint: `curl http://localhost:8080/actuator/prometheus`
+   - You should see Prometheus-formatted metrics
+
+3. **View Dashboards**
+   - Return to Grafana at <http://localhost:3000>
+   - Go to **Dashboards** → **Browse**
+   - Open your imported dashboards
+   - Verify that panels are showing data (not "No data")
+
+4. **Generate Some Traffic**
+   - Make several requests to your application to see metrics change:
+
+     ```bash
+     for i in {1..10}; do curl http://localhost:8080/health; sleep 1; done
+     ```
+
+   - Watch the dashboards update in real-time
 
 ## Application Metrics
 
