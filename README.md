@@ -1,6 +1,7 @@
-# Kubernetes Monitoring & AlertManager Complete Implementation
+# PTUDDN Advanced Web Development Assignments
 
-A comprehensive Spring Boot application deployed on Kubernetes with full monitoring, alerting, and CI/CD pipeline.
+This repository contains assignments and projects for the PTUDDN course. It has expanded from its initial Week 3 scope to cover a comprehensive set of advanced topics, including:
+
 
 ## ✅ Completed Implementation
 
